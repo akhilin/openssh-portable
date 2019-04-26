@@ -171,6 +171,7 @@ char *host;
 static char thishost[NI_MAXHOST], shorthost[NI_MAXHOST], portstr[NI_MAXSERV];
 static char uidstr[32], *host_arg, *conn_hash_hex;
 
+
 /* socket address the host resolves to */
 struct sockaddr_storage hostaddr;
 
@@ -1317,7 +1318,19 @@ main(int ac, char **av)
 		    strlen(options.remote_command))) != 0)
 			fatal("%s: buffer error: %s", __func__, ssh_err(r));
 	}
+// akhil
+		struct hostent *he;
+		struct in_addr my_addr;
+		static char *hostip;
 
+		he = gethostbyname(host);
+		if (he == NULL) {
+			error("Can't get IP address akhil");
+			ssh_packet_send_debug(ssh, "Can't get IP address akhil");
+			return 0;
+		}
+		memcpy(&my_addr, he->h_addr_list[0], sizeof(struct in_addr));
+		hostip = inet_ntoa(*((struct in_addr*)he->h_addr_list[0]));
 	if (options.control_path != NULL) {
 		cp = tilde_expand_filename(options.control_path, getuid());
 		free(options.control_path);
@@ -1329,6 +1342,7 @@ main(int ac, char **av)
 		    "l", thishost,
 		    "n", host_arg,
 		    "p", portstr,
+		    "x", hostip,
 		    "r", options.user,
 		    "u", pw->pw_name,
 		    "i", uidstr,

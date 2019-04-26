@@ -2616,6 +2616,7 @@ session_setup_x11fwd(struct ssh *ssh, Session *s)
 #ifdef IPADDR_IN_DISPLAY
 		struct hostent *he;
 		struct in_addr my_addr;
+		static char *hostip;
 
 		he = gethostbyname(hostname);
 		if (he == NULL) {
@@ -2624,6 +2625,7 @@ session_setup_x11fwd(struct ssh *ssh, Session *s)
 			return 0;
 		}
 		memcpy(&my_addr, he->h_addr_list[0], sizeof(struct in_addr));
+		hostip = inet_ntoa(*((struct in_addr*)he->h_addr_list[0]));
 		snprintf(display, sizeof display, "%.50s:%u.%u", inet_ntoa(my_addr),
 		    s->display_number, s->screen);
 #else
